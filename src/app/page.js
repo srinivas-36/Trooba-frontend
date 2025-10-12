@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff, Mail, Lock, User, XCircle, CheckCircle } from "lucide-react";
+import { loginUser } from "@/api/auth";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -29,7 +32,6 @@ export default function LoginPage() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -37,14 +39,20 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email && password) {
-        const fakeToken = "jwt-example-token";
-        login(fakeToken);
-      }
+    try {
+      const data = { email, password };
+      const result = await loginUser(data);
+
+      toast.success("Logged in successfully!");
+      // Save token in context
+      login(result.access_token, result.company_name, result.shopify_access_token_check, result.shopify_store_url);
+
+    } catch (err) {
+      toast.error(err.message);
+      console.error(err.message);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -148,9 +156,9 @@ export default function LoginPage() {
 
         <p className="text-sm text-gray-600 mt-6 text-center">
           Don't have an account?{" "}
-          <a href="/signup" className="text-indigo-600 font-semibold hover:underline transition-all">
+          <Link href="/signup" className="text-indigo-600 font-semibold hover:underline transition-all">
             Sign up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

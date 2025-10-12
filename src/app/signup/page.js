@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+// import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff, Mail, Lock, Building, User, CheckCircle, XCircle } from "lucide-react";
+import { registerUser } from "@/api/auth";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import Link from "next/link";
 
 export default function SignupPage() {
-    const { login } = useAuth();
+    // const { login } = useAuth();
     const [company, setCompany] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -15,6 +19,8 @@ export default function SignupPage() {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState(0);
+    const router = useRouter()
+
 
     // Password strength calculator
     useEffect(() => {
@@ -52,19 +58,26 @@ export default function SignupPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!validateForm()) return;
 
         setIsLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            if (company && email && password) {
-                const fakeToken = "jwt-example-token";
-                login(fakeToken);
-            }
+        try {
+            const data = { company, email, password };
+            const result = await registerUser(data);
+
+            // show success or redirect
+            toast.success("Account created successfully!");
+            console.log(result);
+
+            // Optionally redirect to login
+            router.push("/")
+        } catch (err) {
+            toast.error(err.message);
+            console.error(err.message);
+        } finally {
             setIsLoading(false);
-        }, 1500);
+        }
     };
 
     const getPasswordStrengthColor = () => {
@@ -212,9 +225,9 @@ export default function SignupPage() {
 
                 <p className="text-sm text-gray-600 mt-6 text-center">
                     Already have an account?{" "}
-                    <a href="/" className="text-purple-600 font-semibold hover:underline transition-all">
+                    <Link href="/" className="text-purple-600 font-semibold hover:underline transition-all">
                         Login
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>

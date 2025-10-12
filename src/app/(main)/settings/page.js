@@ -4,9 +4,47 @@ import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader2, CheckCircle2, Upload, Link, Database, ShoppingCart, ChevronRight, Settings2, Store, Boxes } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
+
 
 export default function SettingsPage() {
-    const { token } = useAuth();
+    const { token, setShopifyCheck, setShopifyUrl, shopifyCheck, shopifyUrl } = useAuth();
+    console.log(token)
+    const [storeUrl, setStoreUrl] = useState(shopifyUrl || "");
+    const [accessToken, setAccessToken] = useState("");
+
+    const handleShopifySubmit = async () => {
+        setOpen(true);
+        setLoading(true);
+        setLoadingText("Connecting to Shopify...");
+        setSuccessText("");
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}ShopifyDetails/`,
+                {
+                    store_url: storeUrl,
+                    access_token: accessToken,
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            setLoading(false);
+            setSuccessText("✅ Credentials saved. Data fetching started");
+
+            // ✅ Update AuthContext
+            setShopifyCheck(true);
+            setShopifyUrl(storeUrl);
+
+            console.log("Shopify response:", response.data);
+        } catch (error) {
+            setLoading(false);
+            setSuccessText("❌ Failed to save credentials");
+            console.error(error);
+        }
+    };
 
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -29,16 +67,7 @@ export default function SettingsPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 p-6">
             <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                {/* <div className="flex items-center mb-10">
-                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-2xl mr-4 shadow-md">
-                        <Settings2 className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-800">Store Settings</h1>
-                        <p className="text-gray-600 mt-1">Manage your store integrations and data imports</p>
-                    </div>
-                </div> */}
+
 
                 {/* Grid Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -60,28 +89,32 @@ export default function SettingsPage() {
                                 <input
                                     type="text"
                                     placeholder="techsprout.myshopify.com"
+                                    value={shopifyUrl || storeUrl}
+                                    onChange={(e) => setStoreUrl(e.target.value)}
+                                    disabled={shopifyCheck} // <-- disable when connected
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
+
                                 <input
-                                    type="password"
+                                    type={shopifyCheck ? "text" : "password"}
                                     placeholder="Access Token"
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
+                                    value={shopifyCheck ? "••••••••••••••••" : accessToken}
+                                    onChange={(e) => setAccessToken(e.target.value)}
+                                    disabled={shopifyCheck}
+                                    className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition ${shopifyCheck ? "bg-gray-100 text-gray-500" : ""
+                                        }`}
                                 />
+
                             </div>
                         </div>
-
                         <button
-                            onClick={() =>
-                                handleAction(
-                                    "Connecting to Shopify...",
-                                    "✅ Credentials saved. Data fetching started"
-                                )
-                            }
-                            className="mt-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition w-full font-medium flex items-center justify-center shadow-md hover:shadow-lg"
+                            onClick={handleShopifySubmit}
+                            disabled={shopifyCheck} // <-- disable when connected
+                            className={`mt-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition w-full font-medium flex items-center justify-center shadow-md hover:shadow-lg ${shopifyCheck ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                             Save & Sync
                             <ChevronRight className="ml-2 w-4 h-4" />
