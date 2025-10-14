@@ -23,7 +23,7 @@ export default function SalesForecastChart({ last12Months }) {
             return {
                 month,
                 sales: units_sold,
-                forecast: 0, // replace if you have forecast data
+                // replace if you have forecast data
             };
         });
     }, [last12Months, range]);
@@ -35,13 +35,13 @@ export default function SalesForecastChart({ last12Months }) {
                 <div className="space-x-2">
                     <button
                         onClick={() => setRange(6)}
-                        className={`px-3 py-1 rounded ${range === 6 ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        className={`px-3 py-1 cursor-pointer rounded ${range === 6 ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}`}
                     >
                         6M
                     </button>
                     <button
                         onClick={() => setRange(12)}
-                        className={`px-3 py-1 rounded ${range === 12 ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        className={`px-3 py-1 cursor-pointer rounded ${range === 12 ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}`}
                     >
                         12M
                     </button>
@@ -60,14 +60,14 @@ export default function SalesForecastChart({ last12Months }) {
                         strokeWidth={2}
                         name="Actual Sales"
                     />
-                    <Line
+                    {/* <Line
                         type="monotone"
                         dataKey="forecast"
                         stroke="#f59e0b"
                         strokeDasharray="5 5"
                         strokeWidth={2}
                         name="Forecast"
-                    />
+                    /> */}
                 </LineChart>
             </ResponsiveContainer>
         </div>
