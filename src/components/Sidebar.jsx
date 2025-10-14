@@ -23,9 +23,9 @@ const Sidebar = () => {
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         { name: "Inventory Management", href: "/inventory", icon: Boxes },
         { name: "Collections", href: "/collections", icon: ImBooks }, // 👈 react-icon here
-        { name: "Pricing Wizard", href: "/pricing", icon: DollarSign },
-        { name: "Marketing Intelligence", href: "/marketing", icon: BarChart3 },
-        { name: "Business Insights", href: "/insights", icon: LineChart },
+        // { name: "Pricing Wizard", href: "/pricing", icon: DollarSign },
+        // { name: "Marketing Intelligence", href: "/marketing", icon: BarChart3 },
+        // { name: "Business Insights", href: "/insights", icon: LineChart },
         { name: "Master Data Hub", href: "/master-data", icon: Database },
         { name: "Settings", href: "/settings", icon: Settings },
     ];
@@ -44,8 +44,8 @@ const Sidebar = () => {
                         key={name}
                         href={href}
                         className={`flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-200 ${pathname === href
-                                ? "bg-white text-indigo-700 shadow-md font-semibold"
-                                : "hover:bg-white/10"
+                            ? "bg-white text-indigo-700 shadow-md font-semibold"
+                            : "hover:bg-white/10"
                             }`}
                     >
                         <Icon className="w-6 h-6" /> {/* works with lucide + react-icons */}

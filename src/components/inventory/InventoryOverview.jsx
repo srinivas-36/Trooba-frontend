@@ -67,26 +67,26 @@ export default function InventoryOverview({ data }) {
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">
                     Top Priority Items
                 </h2>
-                <table className="w-full text-left border-collapse">
+                <table className="w-full border-collapse">
                     <thead>
                         <tr className="text-sm text-gray-500 border-b">
                             <th className="pb-3">Product</th>
-                            <th className="pb-3">Current Stock</th>
-                            <th className="pb-3">Reorder</th>
-                            <th className="pb-3">Supplier</th>
-                            <th className="pb-3">Action</th>
+                            <th className="pb-3 text-center">Current Stock</th>
+                            <th className="pb-3 text-center">Reorder</th>
+                            <th className="pb-3 text-center">Supplier</th>
+                            <th className="pb-3 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm text-gray-700">
                         {itemsToShow.map((item) => (
                             <tr key={item.SKU} className="border-b">
-                                <td className="py-3 font-medium">{item.Product}</td>
-                                <td className="py-3">{item.Live_Inventory}</td>
-                                <td className="py-3">{item.Reorder_Quantity}</td>
-                                <td className="py-3">{item.Supplier || "N/A"}</td>
-                                <td className="py-3">
-                                    <button className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                                        T
+                                <td className="py-3 text-center font-medium">{item.Product}</td>
+                                <td className="py-3 text-center">{item.Live_Inventory}</td>
+                                <td className="py-3 text-center">{item.Reorder_Quantity}</td>
+                                <td className="py-3 text-center">{item.Supplier || "N/A"}</td>
+                                <td className="py-3 text-center">
+                                    <button className="px-3 py-1 text-sm  text-red-600 rounded-lg ">
+                                        Purchase Immediately
                                     </button>
                                 </td>
                             </tr>

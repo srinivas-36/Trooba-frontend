@@ -5,11 +5,19 @@ import { createContext, useContext, useState } from "react";
 const MonthContext = createContext();
 
 export const MonthProvider = ({ children }) => {
-    const [selectedMonth, setSelectedMonth] = useState(null); // default: null
-    // console.log("selectedMonth : ", selectedMonth)
+    // Separate month states for different pages
+    const [dashboardMonth, setDashboardMonth] = useState(null);
+    const [masterDataMonth, setMasterDataMonth] = useState(null);
 
     return (
-        <MonthContext.Provider value={{ selectedMonth, setSelectedMonth }}>
+        <MonthContext.Provider
+            value={{
+                dashboardMonth,
+                setDashboardMonth,
+                masterDataMonth,
+                setMasterDataMonth,
+            }}
+        >
             {children}
         </MonthContext.Provider>
     );

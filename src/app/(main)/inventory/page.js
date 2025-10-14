@@ -19,14 +19,26 @@ export default function InventoryPage() {
         forecasts: [],
         slow_movers: [],
     });
-
-    // ---------------- Filter State ----------------
     const [filters, setFilters] = useState({
         category: "All Categories",
         minPrice: 0,
-        maxPrice: 7160,
-        searchTerm: ""  // <-- add this
+        maxPrice: 0, // Will be set dynamically
+        searchTerm: ""
     });
+
+    useEffect(() => {
+        if (!inventoryData.forecasts.length) return;
+
+        const maxPriceInData = Math.max(...inventoryData.forecasts.map(f => f.Price));
+
+        setFilters(prev => ({
+            ...prev,
+            maxPrice: maxPriceInData,
+        }));
+    }, [inventoryData.forecasts]);
+
+    // ---------------- Filter State ----------------
+
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
