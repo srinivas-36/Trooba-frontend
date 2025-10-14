@@ -73,7 +73,7 @@ export default function ChatbotWidget() {
         try {
             // 🔥 Send question to your real API
             const res = await axios.post(
-                "http://127.0.0.1:8000/trooba_gemini_query/",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}trooba_gemini_query/`,
                 { question: input },
                 {
                     headers: {
