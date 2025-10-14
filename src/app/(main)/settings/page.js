@@ -10,6 +10,10 @@ import axios from "axios";
 export default function SettingsPage() {
     const { token, setShopifyCheck, setShopifyUrl, shopifyCheck, shopifyUrl } = useAuth();
     console.log(token)
+    const [purchaseFile, setPurchaseFile] = useState(null);
+
+    const [promoFile, setPromoFile] = useState(null);
+
     const [storeUrl, setStoreUrl] = useState(shopifyUrl || "");
     const [accessToken, setAccessToken] = useState("");
 
@@ -63,6 +67,131 @@ export default function SettingsPage() {
             setSuccessText(successMsg);
         }, 1500); // simulate API
     };
+    const handleFetchCollections = async () => {
+        setOpen(true);
+        setLoading(true);
+        setLoadingText("Fetching collections from Shopify...");
+        setSuccessText("");
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}FetchCollections/`,
+                {}, // no body required
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("FetchCollections response:", response.data);
+
+            setLoading(false);
+            setSuccessText("✅ Collections fetch started successfully!");
+        } catch (error) {
+            console.error("Error fetching collections:", error);
+            setLoading(false);
+            setSuccessText("❌ Failed to start fetching collections");
+        }
+    };
+
+    const handleUploadPromotionalData = async () => {
+        if (!promoFile) {
+            alert("Please select a file first!");
+            return;
+        }
+
+        // Open modal + show loader
+        setOpen(true);
+        setLoading(true);
+        setLoadingText("Uploading promotional data...");
+        setSuccessText("");
+
+        const formData = new FormData();
+        formData.append("file", promoFile);
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}PromotionalExcel/`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("Promotional upload response:", response.data);
+            setPromoFile(null);
+
+            // Keep loader visible briefly before showing success
+            setTimeout(() => {
+                setLoading(false);
+                setSuccessText("✅ Promotional data uploaded successfully!");
+
+                // Wait a moment so user can see success message, then reload
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+            }, 800);
+
+        } catch (error) {
+            console.error("Error uploading promotional data:", error);
+            setLoading(false);
+            setSuccessText("❌ Failed to upload promotional data");
+        }
+    };
+
+    const handleUploadPurchaseOrder = async () => {
+        if (!purchaseFile) {
+            alert("Please select a file first!");
+            return;
+        }
+
+        setOpen(true);
+        setLoading(true);
+        setLoadingText("Uploading purchase order...");
+        setSuccessText("");
+
+        const formData = new FormData();
+        formData.append("file", purchaseFile);
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}InOrderDetails/`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("Purchase order upload response:", response.data);
+
+            // Simulate short "loading" visibility
+            setTimeout(() => {
+                setLoading(false);
+                setSuccessText("✅ Purchase order uploaded successfully!");
+
+                // Wait another second before reload
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+            }, 800);
+
+            setPurchaseFile(null);
+
+        } catch (error) {
+            console.error("Error uploading purchase order:", error);
+            setLoading(false);
+            setSuccessText("❌ Failed to upload purchase order");
+        }
+    };
+
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 p-6">
@@ -131,29 +260,63 @@ export default function SettingsPage() {
                                 <h2 className="text-xl font-semibold text-gray-800">Promotional Data</h2>
                                 <p className="text-sm text-gray-500 mt-1">Upload promotional materials and discount codes</p>
                             </div>
+                            <div>
+                                <div>
+                                    <a
+                                        href="https://docs.google.com/spreadsheets/d/1jaecUB3dErR96Ankn-59QenRvTcX5NWK/edit?usp=drive_link&ouid=102834815706956617221&rtpof=true&sd=true"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl ml-8 px-4 py-2"
+                                    >
+                                        Excel Link
+                                    </a>
+                                </div>
+
+                            </div>
                         </div>
 
                         <div className="mb-5 p-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Upload CSV File</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Upload Excel File</label>
+
                             <div className="flex items-center justify-center w-full">
-                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-400 transition bg-gray-50">
+                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-400 transition bg-gray-50 relative">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <Upload className="w-8 h-8 mb-3 text-gray-400" />
                                         <p className="mb-2 text-sm text-gray-500">Click to upload or drag and drop</p>
                                         <p className="text-xs text-gray-500">CSV, XLSX (MAX. 10MB)</p>
                                     </div>
-                                    <input type="file" className="hidden" />
+
+                                    <input
+                                        type="file"
+                                        accept=".xlsx,.xls,.csv"
+                                        className="hidden"
+                                        onChange={(e) => setPromoFile(e.target.files[0])}
+                                    />
                                 </label>
                             </div>
+
+                            {/* ✅ Show selected file info */}
+                            {promoFile && (
+                                <div className="mt-3 bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between text-sm text-gray-700">
+                                    <div className="flex items-center">
+                                        <Database className="w-4 h-4 text-purple-600 mr-2" />
+                                        <span>
+                                            <strong>{promoFile.name}</strong> ({(promoFile.size / 1024).toFixed(1)} KB)
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() => setPromoFile(null)}
+                                        className="text-red-500 hover:text-red-700 font-medium ml-4"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
+
                         <button
-                            onClick={() =>
-                                handleAction(
-                                    "Uploading promotional data...",
-                                    "✅ Promotional details are saved successfully"
-                                )
-                            }
+                            onClick={handleUploadPromotionalData}
                             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition w-full font-medium flex items-center justify-center shadow-md hover:shadow-lg"
                         >
                             Upload File
@@ -193,20 +356,14 @@ export default function SettingsPage() {
 
                         <div className="flex space-x-3">
                             <button
-                                onClick={() =>
-                                    handleAction(
-                                        "Fetching collections...",
-                                        "✅ Collections fetching has started"
-                                    )
-                                }
+                                onClick={handleFetchCollections}
                                 className="flex-1 px-4 py-3 mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition font-medium flex items-center justify-center shadow-md hover:shadow-lg"
                             >
                                 Fetch Collections
                                 <ChevronRight className="ml-2 w-4 h-4" />
                             </button>
-
-
                         </div>
+
                     </div>
 
                     {/* Purchase Order */}
@@ -219,6 +376,17 @@ export default function SettingsPage() {
                                 <h2 className="text-xl font-semibold text-gray-800">Purchase Orders</h2>
                                 <p className="text-sm text-gray-500 mt-1">Upload and manage inventory purchase orders</p>
                             </div>
+                            <div>
+                                <a
+                                    href="https://docs.google.com/spreadsheets/d/14aL4yO9Zakm9Y9AoklS7lrJ75fYVgjos/edit?usp=drive_link&ouid=102834815706956617221&rtpof=true&sd=true"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl ml-14 px-4 py-2"
+                                >
+                                    Excel Link
+                                </a>
+                            </div>
+
                         </div>
 
                         <div className="mb-5">
@@ -230,18 +398,34 @@ export default function SettingsPage() {
                                         <p className="mb-2 text-sm text-gray-500">Click to upload or drag and drop</p>
                                         <p className="text-xs text-gray-500">CSV, XLSX (MAX. 10MB)</p>
                                     </div>
-                                    <input type="file" className="hidden" />
+                                    <input
+                                        type="file"
+                                        accept=".xlsx,.xls,.csv"
+                                        className="hidden"
+                                        onChange={(e) => setPurchaseFile(e.target.files[0])}
+                                    />
                                 </label>
                             </div>
+                            {purchaseFile && (
+                                <div className="mt-3 bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between text-sm text-gray-700">
+                                    <div className="flex items-center">
+                                        <Database className="w-4 h-4 text-purple-600 mr-2" />
+                                        <span>
+                                            <strong>{purchaseFile.name}</strong> ({(purchaseFile.size / 1024).toFixed(1)} KB)
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() => setPromoFile(null)}
+                                        className="text-red-500 hover:text-red-700 font-medium ml-4"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         <button
-                            onClick={() =>
-                                handleAction(
-                                    "Uploading purchase order...",
-                                    "✅ Purchase order details are saved successfully"
-                                )
-                            }
+                            onClick={handleUploadPurchaseOrder}
                             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition w-full font-medium flex items-center justify-center shadow-md hover:shadow-lg"
                         >
                             Upload File

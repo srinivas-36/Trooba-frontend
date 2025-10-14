@@ -3,9 +3,10 @@
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
 const pageTitles = {
-    "/dashboard": "Dashboard",
+    "/dashboard": "Planning Dashboard",
     "/inventory": "Inventory Management",
     "/collections": "Collections",
     "/pricing": "Pricing Wizard",
@@ -15,12 +16,31 @@ const pageTitles = {
     "/settings": "Settings",
 };
 
+import { useMonth } from "@/context/MonthContext";
+// Helper to get all months **up to current month**
+const getMonthsUpToCurrent = () => {
+    const months = [];
+    const date = new Date();
+    const currentMonth = date.getMonth(); // 0-11
+    const currentYear = date.getFullYear();
+
+    for (let i = 0; i <= currentMonth; i++) {
+        const d = new Date(currentYear, i, 1);
+        const monthName = d.toLocaleString("default", { month: "long", year: "numeric" });
+        months.push(monthName);
+    }
+    return months;
+};
+
 const Navbar = () => {
     const { token, company } = useAuth();
     const pathname = usePathname();
     const pageTitle = pageTitles[pathname] || "Trooba";
+    const { selectedMonth, setSelectedMonth } = useMonth();
 
-    // If token hasn't loaded yet, show a skeleton or fallback
+    const months = getMonthsUpToCurrent();
+    // default to current month
+
     if (token === null) {
         return (
             <header className="flex items-center justify-between p-6 bg-white shadow-md sticky top-0 z-10">
@@ -37,6 +57,22 @@ const Navbar = () => {
         <header className="flex items-center justify-between p-6 bg-white shadow-md sticky top-0 z-10">
             {/* Page Title */}
             <h1 className="text-2xl font-bold text-gray-800">{pageTitle}</h1>
+
+            {/* Month Selector only on dashboard */}
+            {pathname === "/dashboard" && (
+                // replace local state
+                <select
+                    value={selectedMonth || months[months.length - 1]} // fallback to current month
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded shadow-sm text-gray-700"
+                >
+                    {months.map((month) => (
+                        <option key={month} value={month}>
+                            {month}
+                        </option>
+                    ))}
+                </select>
+            )}
 
             {/* Right side */}
             <div className="flex items-center gap-4">

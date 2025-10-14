@@ -1,61 +1,65 @@
-"use client";
+import { AlertTriangle } from "lucide-react";
+import { useState } from "react";
 
-import { AlertTriangle, TrendingDown, Package, Truck } from "lucide-react";
-
-export default function InventoryOverview() {
+export default function InventoryOverview({ data }) {
+    const { summary, forecasts = [] } = data;
+    const stockoutItems = forecasts.filter(item => item.Action_Item === "StockOut Risk");
+    const [showAll, setShowAll] = useState(false);
+    const itemsToShow = showAll ? stockoutItems : stockoutItems.slice(0, 3);
     return (
         <div className="space-y-6">
             {/* Urgent Actions */}
-            <div className="bg-white p-6 rounded-2xl shadow border border-gray-100">
+            <div className="bg-white py-10 px-15 rounded-2xl shadow border border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5 text-red-500" />
                     Urgent Actions Required
                 </h2>
-                <ul className="space-y-3">
-                    <li className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
-                        <span className="text-red-700 font-medium">
-                            Restock Adidas Hoodie – only 5 left in stock
-                        </span>
-                        <button className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
-                            Reorder Now
-                        </button>
-                    </li>
-                    <li className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                        <span className="text-yellow-700 font-medium">
-                            Delay in supplier delivery for Nike Shoes
-                        </span>
-                        <button className="px-3 py-1 text-sm bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
-                            Contact Supplier
-                        </button>
-                    </li>
-                </ul>
-            </div>
+                <div className="flex gap-5">
+                    {/* Left Column: Counts */}
+                    <ul className="space-y-3 w-1/3">
+                        <li className="flex items-center justify-between p-5 bg-red-100 rounded-lg border border-red-100">
+                            <span className="text-red-700 font-medium">Stockout Risk Items:</span>
+                            <button className="px-3 py-1 cursor-pointer text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
+                                {summary?.risk_alerts_count ?? 0}
+                            </button>
+                        </li>
+                        <li className="flex items-center justify-between p-5 bg-green-100 rounded-lg border border-green-100">
+                            <span className="text-green-700 font-medium">Reorder Needed Items:</span>
+                            <button className="px-3 py-1 cursor-pointer text-sm bg-green-500 text-white rounded-lg hover:bg-green-600">
+                                {summary?.reorder_needed_count ?? reorderNeededItems.length}
+                            </button>
+                        </li>
+                        <li className="flex items-center justify-between p-5 bg-yellow-100 rounded-lg border border-yellow-100">
+                            <span className="text-yellow-700 font-medium">Slow Movers:</span>
+                            <button className="px-3 py-1 text-sm cursor-pointer bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                                {summary?.slow_movers_count ?? 0}
+                            </button>
+                        </li>
+                    </ul>
 
-            {/* Inventory Health */}
-            <div className="bg-white p-6 rounded-2xl shadow border border-gray-100">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Inventory Health
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <HealthCard
-                        title="Stock Turnover Ratio"
-                        value="3.4x"
-                        trend="-12%"
-                        trendType="down"
-                    />
-                    <HealthCard
-                        title="Avg. Lead Time"
-                        value="8 days"
-                        trend="+2 days"
-                        trendType="up"
-                    />
-                    <HealthCard
-                        title="Backorder Rate"
-                        value="4.2%"
-                        trend="+1.3%"
-                        trendType="up"
-                    />
+                    {/* Right Column: Descriptions */}
+                    <ul className="space-y-3 w-2/3">
+                        <li className="flex p-5 bg-red-100 rounded-lg border border-red-100">
+                            <span className="text-red-700 font-medium mx-2">Stockout Risk Items:</span>
+                            <div className="text-red-600 text-sm mt-1">
+                                These items are low in stock and may run out soon.
+                            </div>
+                        </li>
+                        <li className="flex p-5 bg-green-100 rounded-lg border border-green-100">
+                            <span className="text-green-700 font-medium mx-2">Reorder Needed Items:</span>
+                            <div className="text-green-600 text-sm mt-1">
+                                These items are below reorder point and need replenishment.
+                            </div>
+                        </li>
+                        <li className="flex p-5 bg-yellow-100 rounded-lg border border-yellow-100">
+                            <span className="text-yellow-700 font-medium mx-2">Slow Movers:</span>
+                            <div className="text-yellow-600 text-sm mt-1">
+                                These items have had slow sales in the last 3 months.
+                            </div>
+                        </li>
+                    </ul>
                 </div>
+
             </div>
 
             {/* Top Priority Items */}
@@ -68,64 +72,28 @@ export default function InventoryOverview() {
                         <tr className="text-sm text-gray-500 border-b">
                             <th className="pb-3">Product</th>
                             <th className="pb-3">Current Stock</th>
-                            <th className="pb-3">Reorder Point</th>
+                            <th className="pb-3">Reorder</th>
                             <th className="pb-3">Supplier</th>
                             <th className="pb-3">Action</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm text-gray-700">
-                        <tr className="border-b">
-                            <td className="py-3 font-medium">Adidas Hoodie</td>
-                            <td className="py-3">5</td>
-                            <td className="py-3">20</td>
-                            <td className="py-3">Adidas Global</td>
-                            <td className="py-3">
-                                <button className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                                    Reorder
-                                </button>
-                            </td>
-                        </tr>
-                        <tr className="border-b">
-                            <td className="py-3 font-medium">Sony Headphones</td>
-                            <td className="py-3">12</td>
-                            <td className="py-3">15</td>
-                            <td className="py-3">Sony Electronics</td>
-                            <td className="py-3">
-                                <button className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                                    Reorder
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="py-3 font-medium">Nike Shoes</td>
-                            <td className="py-3">8</td>
-                            <td className="py-3">25</td>
-                            <td className="py-3">Nike Suppliers</td>
-                            <td className="py-3">
-                                <button className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                                    Reorder
-                                </button>
-                            </td>
-                        </tr>
+                        {itemsToShow.map((item) => (
+                            <tr key={item.SKU} className="border-b">
+                                <td className="py-3 font-medium">{item.Product}</td>
+                                <td className="py-3">{item.Live_Inventory}</td>
+                                <td className="py-3">{item.Reorder_Quantity}</td>
+                                <td className="py-3">{item.Supplier || "N/A"}</td>
+                                <td className="py-3">
+                                    <button className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                                        T
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
-        </div>
-    );
-}
-
-function HealthCard({ title, value, trend, trendType }) {
-    return (
-        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-            <p className="text-gray-500 text-sm">{title}</p>
-            <h2 className="text-xl font-bold text-gray-800 mt-1">{value}</h2>
-            <p
-                className={`text-sm font-medium mt-1 flex items-center gap-1 ${trendType === "up" ? "text-red-500" : "text-green-600"
-                    }`}
-            >
-                {trendType === "up" ? <TrendingDown className="w-4 h-4" /> : <Package className="w-4 h-4" />}
-                {trend}
-            </p>
         </div>
     );
 }

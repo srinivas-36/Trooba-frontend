@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         setShopifyCheck(shopify_access_token_check);
         setShopifyUrl(shopify_store_url);
 
-        router.push("/settings");
+        router.push("/dashboard");
     };
 
 

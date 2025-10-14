@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Eye, EyeOff, Mail, Lock, Building, User, CheckCircle, XCircle } from "lucide-react";
 import { registerUser } from "@/api/auth";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import Link from "next/link";
 
 export default function SignupPage() {

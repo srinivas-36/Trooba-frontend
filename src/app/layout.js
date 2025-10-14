@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { MonthProvider } from "@/context/MonthContext";
 // import "react-toastify/dist/ReactToastify.css";
 // import { ToastContainer } from "react-toastify";
 
@@ -28,12 +29,14 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
+          <MonthProvider>
 
-          {children}
-          <Toaster
-            position="top-right"
-            reverseOrder={true}
-          />
+            {children}
+            <Toaster
+              position="top-right"
+              reverseOrder={true}
+            />
+          </MonthProvider>
         </AuthProvider>
       </body>
     </html>
