@@ -344,7 +344,8 @@ export default function DashboardPage() {
 
                     {/* Charts */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <SalesForecastChart data={data} />
+                        <SalesForecastChart last12Months={data.last_12_months} />
+
                         <TopCategoriesChart data={top_selling_categories} />
                     </div>
 
