@@ -17,12 +17,12 @@ export default function SalesForecastChart({ last12Months }) {
         // Slice according to range
         const slicedEntries = entries.slice(-range);
 
-        return slicedEntries.map(([monthYear, { units_sold }]) => {
+        return slicedEntries.map(([monthYear, { sales_amount }]) => {
             const date = new Date(monthYear + "-01");
             const month = date.toLocaleString("default", { month: "short" });
             return {
                 month,
-                sales: units_sold,
+                sales: sales_amount,
                 // replace if you have forecast data
             };
         });
@@ -31,7 +31,7 @@ export default function SalesForecastChart({ last12Months }) {
     return (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-3">
-                <h3 className="text-lg font-semibold text-gray-700">Sales vs Forecast</h3>
+                <h3 className="text-lg font-semibold text-gray-700">Overall Sales</h3>
                 <div className="space-x-2">
                     <button
                         onClick={() => setRange(6)}
